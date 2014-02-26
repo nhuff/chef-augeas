@@ -16,33 +16,119 @@ class Chef
       end
 
       def action_run
+        changes = parse_changes(@new_resource.changes())
+        if need_run?(@new_resource.only_if,changes)
+          execute_changes(changes)
+        end
+      end
+
+      def execute_changes(changes)
         aug = ::Augeas::open()
-        if need_run?(aug,@new_resource.only_if)
-          parse_changes(@new_resource.changes()).map{|x| execute_change(aug,x)}
+        changes.map{|x| execute_change(aug,x)}
+        aug.close
+      end
+
+      def need_run?(only_if,changes)
+        aug = ::Augeas::open()
+        if only_if
+          o_i = check_guard(aug,parse_args(only_if))
+        else
+          o_i = true
         end
         aug.close()
+        return (o_i and !in_sync?)
       end
 
-      def need_run?(aug,only_if)
-        if only_if
-          check_guard(parse_args(only_if))
-        end
-        return true
+      def in_sync?()
+        return false
       end
 
-      def check_guard(guard)
+      def check_guard(aug,guard)
         case guard[0]
         when 'get'
-          process_get(guard)
+          process_get(aug,guard)
+        when 'match'
+          process_match(aug,guard)
+        else
+          raise ArgumentError,"#{guard[0]} is not a valid matcher in only_if"
         end
       end
 
-      def process_get(guard)
+      def process_match(aug,guard)
+        if guard.length < 4
+          raise ArgumentError,"match requires at least 3 arguments" 
+        end
+
+        ret = false
+        path,verb = guard[1],guard[2]
+        matches = aug.match(path) || []
+        case verb
+        when 'size'
+          if guard.length != 5
+            raise ArgumentError,"match with size requires 4 args"
+          end
+          comp = guard[3]
+          val  = guard[4].to_i
+          if comp == '!='
+            ret = !matches.size.send(:==,val)
+          else
+            ret = matches.size.send(comp,val)
+          end
+        when 'include'
+          ret = matches.include?(guard[3])
+        when 'not_include'
+          ret = !matches.include?(guard[3])
+        when '=='
+          val = eval guard[3]
+          ret = (matches == val)
+        when '!='
+          val = eval guard[3]
+          ret = !(matches == val)
+        else
+          raise ArgumentError,"verb #{verb} not supported by match" 
+        end
+        return ret
+      end
+
+      def process_get(aug,guard)
+        raise ArgumentError,"get requires 3 arguments" if guard.length != 4
+        ret = false
         path,comp,value = guard[1],guard[2],guard[3]
         unless ['>','<','<=','>=','==','!=','=~'].include?(comp)
           raise ArgumentError,"Uknown comparator #{comp}"
         end
-      end 
+        cur = aug.get(path) || ''
+
+        case comp
+        when '>','<','<=','>='
+          if is_numeric?(cur) and is_numeric?(value)
+            curf = cur.to_f
+            valf = value.to_f
+            ret = valf.send(comp,curf)
+          else
+            ret = value.send(comp,cur)
+          end
+        when '!='
+          ret = (value != cur)
+        when '=~'
+          ret = (cur =~ Regexp.new(value))
+        else
+          ret = value.send(comp,cur)
+        end
+
+        return ret
+      end
+
+      def is_numeric?(s)
+        case s
+        when Fixnum
+          true
+        when String
+          s.match(/\A[+-]?\d+?(\.\d+)?\Z/n) == nil ? false : true
+        else
+          false
+        end
+      end
 
       def execute_change(aug,change)
         case change[0]
