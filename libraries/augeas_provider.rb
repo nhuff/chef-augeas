@@ -1,14 +1,16 @@
 require 'chef/provider'
-require 'augeas'
 require 'chef/util/diff'
+require 'chef/log'
 require 'strscan'
 
 class Chef
   class Provider
-    class Augeas < Chef::Provider
+    class AugeasProvider < Chef::Provider
 
       def initialize(new_resource,run_context=nil)
         super(new_resource,run_context)
+        require 'augeas'
+        puts Augeas
       end
 
       def load_current_resource
@@ -17,7 +19,7 @@ class Chef
 
       def action_run
         changes = parse_changes(@new_resource.changes())
-        if need_run?(@new_resource.only_if,changes)
+        if need_run?(@new_resource.run_if,changes)
           execute_changes(changes)
         end
       end
@@ -28,29 +30,36 @@ class Chef
         aug.close
       end
 
-      def need_run?(only_if,changes)
-        aug = ::Augeas::open()
-        if only_if
-          o_i = check_guard(aug,parse_args(only_if))
+      def need_run?(run_if,changes)
+        aug = ::Augeas::open(nil,nil,::Augeas::SAVE_NEWFILE)
+        if run_if
+          o_i = check_guard(aug,parse_args(run_if))
         else
           o_i = true
         end
+        i_s = in_sync?(aug,changes)
         aug.close()
-        return (o_i and !in_sync?)
+        return (o_i and !i_s)
       end
 
-      def in_sync?()
-        return false
+      def in_sync?(aug,changes)
+        changes.map{|x| execute_change(aug,x)}
+        saved_files = aug.match('/augeas/events/saved')
+        if saved_files.size > 0
+          saved_files.map{|x| File.delete(x+".augnew")}
+          return false
+        end
+        return true
       end
 
       def check_guard(aug,guard)
         case guard[0]
         when 'get'
-          process_get(aug,guard)
+          return process_get(aug,guard)
         when 'match'
-          process_match(aug,guard)
+          return process_match(aug,guard)
         else
-          raise ArgumentError,"#{guard[0]} is not a valid matcher in only_if"
+          raise ArgumentError,"#{guard[0]} is not a valid matcher in run_if"
         end
       end
 

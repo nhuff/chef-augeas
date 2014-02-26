@@ -1,16 +1,16 @@
 ---
 driver:
-  name: vagrant
+  name: docker
 
 provisioner:
   name: chef_solo
 
 platforms:
-  - name: ubuntu-12.04
   - name: centos-6.4
 
 suites:
   - name: default
     run_list:
-      - recipe[augeas::default]
+      - recipe[augeas::geminstall]
+      - recipe[augeas::test]
     attributes:

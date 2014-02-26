@@ -1,13 +1,14 @@
 require 'test_helper'
 require 'augeas_resource'
+require 'augeas_provider'
 
-class AugeasResourceTest < MiniTest::Test
+class AugeasApplyTest < MiniTest::Test
   def setup
-    @resource = Chef::Resource::Augeas.new('test')
+    @resource = Chef::Resource::AugeasApply.new('test')
   end
 
   def test_creates_chef_resource
-    assert_instance_of(Chef::Resource::Augeas,@resource)
+    assert_instance_of(Chef::Resource::AugeasApply,@resource)
     assert_kind_of(Chef::Resource,@resource)
   end
 
@@ -42,9 +43,9 @@ class AugeasResourceTest < MiniTest::Test
     assert_equal('Xml.lns',@resource.lens)
   end
 
-  def test_accept_only_if
-    @resource.only_if 'match foo size > 0'
-    assert_equal('match foo size > 0', @resource.only_if)
+  def test_accept_run_if
+    @resource.run_if 'match foo size > 0'
+    assert_equal('match foo size > 0', @resource.run_if)
   end
 
   def test_accept_incl
