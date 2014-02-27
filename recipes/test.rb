@@ -22,3 +22,23 @@ augeas 'sysconfig_get_regex_test' do
   changes 'set /files/etc/sysconfig/test/TEST c'
   run_if  'get /files/etc/sysconfig/test/TEST =~ /a/'
 end
+
+augeas 'sysconfig_get_lt_test' do
+  changes 'set /files/etc/sysconfig/test/TEST_NUM 2'
+  run_if  'get /files/etc/sysconfig/test/TEST_NUM < 1'
+end
+
+augeas 'sysconfig_get_gt_test' do
+  changes 'set /files/etc/sysconfig/test/TEST_NUM 2'
+  run_if  'get /files/etc/sysconfig/test/TEST_NUM > 1'
+end
+
+augeas 'sysconfig_get_ge_test' do
+  changes 'set /files/etc/sysconfig/test/TEST_NUM 2'
+  run_if  'get /files/etc/sysconfig/test/TEST_NUM >= 2'
+end
+
+augeas 'sysconfig_get_le_test' do
+  changes 'set /files/etc/sysconfig/test/TEST_NUM 2'
+  run_if  'get /files/etc/sysconfig/test/TEST_NUM <= 0'
+end
