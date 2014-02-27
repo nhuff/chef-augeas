@@ -116,16 +116,16 @@ class Chef
           if is_numeric?(cur) and is_numeric?(value)
             curf = cur.to_f
             valf = value.to_f
-            ret = valf.send(comp,curf)
+            ret = curf.send(comp,valf)
           else
-            ret = value.send(comp,cur)
+            ret = cur.send(comp,value)
           end
         when '!='
           ret = (value != cur)
         when '=~'
           ret = (cur =~ Regexp.new(value))
         else
-          ret = value.send(comp,cur)
+          ret = cur.send(comp,value)
         end
 
         return ret

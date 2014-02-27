@@ -186,8 +186,6 @@ class AugeasProviderTest < Minitest::Test
 
 
   def test_get
-    @new_resource.only_if('get /foo == bar')
-
     @aug.expect(:get,'bar',['/foo'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
@@ -195,6 +193,15 @@ class AugeasProviderTest < Minitest::Test
       end
     end
     @aug.verify
+  end
+
+  def test_get_ge
+    @aug.expect(:get,'3',['/foo'])
+    Augeas.stub(:open, @aug) do
+      @provider.stub(:in_sync?,false) do
+        assert(@provider.need_run?(@aug,'get /foo >= 2',[]))
+      end
+    end
   end
 
   def test_get_fail
