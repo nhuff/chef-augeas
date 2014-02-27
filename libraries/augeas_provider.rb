@@ -2,15 +2,15 @@ require 'chef/provider'
 require 'chef/util/diff'
 require 'chef/log'
 require 'strscan'
+require 'set'
 
 class Chef
   class Provider
-    class AugeasProvider < Chef::Provider
+    class Augeas < Chef::Provider
 
       def initialize(new_resource,run_context=nil)
         super(new_resource,run_context)
         require 'augeas'
-        puts Augeas
       end
 
       def load_current_resource
@@ -18,35 +18,38 @@ class Chef
       end
 
       def action_run
-        changes = parse_changes(@new_resource.changes())
-        if need_run?(@new_resource.run_if,changes)
-          execute_changes(changes)
-        end
-      end
-
-      def execute_changes(changes)
-        aug = ::Augeas::open()
-        changes.map{|x| execute_change(aug,x)}
-        aug.close
-      end
-
-      def need_run?(run_if,changes)
         aug = ::Augeas::open(nil,nil,::Augeas::SAVE_NEWFILE)
+        changes = parse_changes(@new_resource.changes())
+        if need_run?(aug,@new_resource.run_if,changes)
+          execute_changes(aug,changes)
+        end
+        aug.close()
+      end
+
+      def need_run?(aug,run_if,changes)
         if run_if
           o_i = check_guard(aug,parse_args(run_if))
         else
           o_i = true
         end
         i_s = in_sync?(aug,changes)
-        aug.close()
         return (o_i and !i_s)
+      end
+
+      def execute_changes(aug,changes)
+        aug.set('/augeas/save','overwrite')
+        aug.load
+        changes.map{|x| execute_change(aug,x)}
+        result = aug.save
       end
 
       def in_sync?(aug,changes)
         changes.map{|x| execute_change(aug,x)}
-        saved_files = aug.match('/augeas/events/saved')
-        if saved_files.size > 0
-          saved_files.map{|x| File.delete(x+".augnew")}
+        aug.save
+        saved_events = aug.match('/augeas/events/saved')
+        if saved_events.size > 0
+          saved_files  = Set.new(saved_events.map{|x| aug.get(x).sub(/^\/files/,'')})
+          saved_files.map{|x| ::File.delete(x+".augnew")}
           return false
         end
         return true

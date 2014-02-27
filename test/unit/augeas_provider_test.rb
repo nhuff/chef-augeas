@@ -2,28 +2,25 @@ require 'test_helper'
 require 'augeas_provider'
 require 'augeas_resource'
 
-class AugeasProviderTest < Minitest::Test
+class AugeasProviderSetTest < Minitest::Test
   def setup
     @node = Chef::Node.new
     @events = Chef::EventDispatch::Dispatcher.new
     @run_context = Chef::RunContext.new(@node, {}, @events)
-    @new_resource = Chef::Resource::AugeasApply.new("test",@run_context)
+    @new_resource = Chef::Resource::Augeas.new("test",@run_context)
     
-    @provider = Chef::Provider::AugeasProvider.new(@new_resource,@run_context)
+    @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
     @aug = Minitest::Mock.new
-  end
-
-  def test_instance_of_provider
-    assert_kind_of(Chef::Provider, @provider)
-    assert_kind_of(Chef::Provider::AugeasProvider, @provider)
+    @aug.expect(:set,true,['/augeas/save','overwrite'])
+    @aug.expect(:load,true)
+    @aug.expect(:save,true)
+    @aug.expect(:close,true)
   end
 
   def test_set_command
     @new_resource.changes('set /files/etc/hosts[. = \'127.0.0.1\'][last()+1] localhost.localdomain')
 
     @aug.expect(:set,true,["/files/etc/hosts[. = '127.0.0.1'][last()+1]",'localhost.localdomain'])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -36,8 +33,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes('setm /files/etc/hosts/* foo localhost.localdomain')
 
     @aug.expect(:setm,true,["/files/etc/hosts/*",'foo','localhost.localdomain'])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -50,8 +45,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("rm /files/etc/hosts/[. = 'localhost.localdomain']")
 
     @aug.expect(:rm,true,["/files/etc/hosts/[. = 'localhost.localdomain']"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -64,8 +57,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("clear /files/etc/hosts/[. = 'localhost.localdomain']")
 
     @aug.expect(:clear,true,["/files/etc/hosts/[. = 'localhost.localdomain']"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -78,8 +69,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("clearm /files/etc/hosts/[. = 'localhost.localdomain'] *")
 
     @aug.expect(:clearm,true,["/files/etc/hosts/[. = 'localhost.localdomain']","*"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -92,8 +81,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("ins foo before /files/etc/hosts[last()]")
 
     @aug.expect(:insert,true,["/files/etc/hosts[last()]","foo",true])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -106,8 +93,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("ins foo after /files/etc/hosts[last()]")
 
     @aug.expect(:insert,true,["/files/etc/hosts[last()]","foo",false])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -129,8 +114,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("mv /foo /bar")
 
     @aug.expect(:mv,true,["/foo","/bar"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -143,8 +126,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("defvar foo /bar")
 
     @aug.expect(:defvar,true,["foo","/bar"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -157,8 +138,6 @@ class AugeasProviderTest < Minitest::Test
     @new_resource.changes("defnode foo /bar baz")
 
     @aug.expect(:defnode,true,["foo","/bar","baz"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -180,8 +159,6 @@ class AugeasProviderTest < Minitest::Test
 
     @aug.expect(:defvar,true,["foo","/bar"])
     @aug.expect(:rm,true,["/bar"])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -189,16 +166,32 @@ class AugeasProviderTest < Minitest::Test
     end
     @aug.verify
   end
+end
+
+class AugeasProviderTest < Minitest::Test
+  def setup
+    @node = Chef::Node.new
+    @events = Chef::EventDispatch::Dispatcher.new
+    @run_context = Chef::RunContext.new(@node, {}, @events)
+    @new_resource = Chef::Resource::Augeas.new("test",@run_context)
+    
+    @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
+    @aug = Minitest::Mock.new
+  end
+
+  def test_instance_of_provider
+    assert_kind_of(Chef::Provider, @provider)
+    assert_kind_of(Chef::Provider::Augeas, @provider)
+  end
+
 
   def test_get
     @new_resource.only_if('get /foo == bar')
 
     @aug.expect(:get,'bar',['/foo'])
-    @aug.expect(:close,true)
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        assert(@provider.need_run?('get /foo == bar',[]))
+        assert(@provider.need_run?(@aug,'get /foo == bar',[]))
       end
     end
     @aug.verify
@@ -206,10 +199,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_get_fail
     @aug.expect(:get,'baz',['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        refute(@provider.need_run?('get /foo == bar',[]))
+        refute(@provider.need_run?(@aug,'get /foo == bar',[]))
       end
     end
     @aug.verify
@@ -217,10 +209,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_size
     @aug.expect(:match,['foo'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        assert(@provider.need_run?('match /foo size > 0',[]))
+        assert(@provider.need_run?(@aug,'match /foo size > 0',[]))
       end
     end
     @aug.verify
@@ -228,10 +219,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_size_fail
     @aug.expect(:match,[],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        refute(@provider.need_run?('match /foo size > 0',[]))
+        refute(@provider.need_run?(@aug,'match /foo size > 0',[]))
       end
     end
     @aug.verify
@@ -239,10 +229,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_include
     @aug.expect(:match,['bar','baz'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        assert(@provider.need_run?('match /foo include bar',[]))
+        assert(@provider.need_run?(@aug,'match /foo include bar',[]))
       end
     end
     @aug.verify
@@ -250,10 +239,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_include_fail
     @aug.expect(:match,['baz'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        refute(@provider.need_run?('match /foo include bar',[]))
+        refute(@provider.need_run?(@aug,'match /foo include bar',[]))
       end
     end
     @aug.verify
@@ -261,10 +249,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_not_include
     @aug.expect(:match,['baz'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        assert(@provider.need_run?('match /foo not_include bar',[]))
+        assert(@provider.need_run?(@aug,'match /foo not_include bar',[]))
       end
     end
     @aug.verify
@@ -272,10 +259,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_not_include_fail
     @aug.expect(:match,['baz','bar'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        refute(@provider.need_run?('match /foo not_include bar',[]))
+        refute(@provider.need_run?(@aug,'match /foo not_include bar',[]))
       end
     end
     @aug.verify
@@ -283,10 +269,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_equals
     @aug.expect(:match,['bar','baz'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        assert(@provider.need_run?('match /foo == ["bar","baz"]',[]))
+        assert(@provider.need_run?(@aug,'match /foo == ["bar","baz"]',[]))
       end
     end
     @aug.verify
@@ -294,10 +279,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_equals
     @aug.expect(:match,['bar'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        refute(@provider.need_run?('match /foo == ["bar","baz"]',[]))
+        refute(@provider.need_run?(@aug,'match /foo == ["bar","baz"]',[]))
       end
     end
     @aug.verify
@@ -305,10 +289,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_not_equals
     @aug.expect(:match,['baz'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        assert(@provider.need_run?('match /foo != ["bar","baz"]',[]))
+        assert(@provider.need_run?(@aug,'match /foo != ["bar","baz"]',[]))
       end
     end
     @aug.verify
@@ -316,21 +299,21 @@ class AugeasProviderTest < Minitest::Test
 
   def test_match_not_equals_fail
     @aug.expect(:match,['bar','baz'],['/foo'])
-    @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
-        refute(@provider.need_run?('match /foo != ["bar","baz"]',[]))
+        refute(@provider.need_run?(@aug,'match /foo != ["bar","baz"]',[]))
       end
     end
     @aug.verify
   end
 
   def test_not_in_sync
-    @aug.expect(:match,['asdf'],['/augeas/events/saved'])
-    @aug.expect(:close,true)
+    @aug.expect(:match,['/augeas/events/saved'],['/augeas/events/saved'])
+    @aug.expect(:get,'foo',['/augeas/events/saved'])
+    @aug.expect(:save,true)
     Augeas.stub(:open, @aug) do
       File.stub(:delete,true) do
-        assert(@provider.need_run?(nil,[]))
+        assert(@provider.need_run?(@aug,nil,[]))
       end
     end
     @aug.verify
@@ -338,9 +321,9 @@ class AugeasProviderTest < Minitest::Test
 
   def test_in_sync
     @aug.expect(:match,[],['/augeas/events/saved'])
-    @aug.expect(:close,true)
+    @aug.expect(:save,true)
     Augeas.stub(:open, @aug) do
-      refute(@provider.need_run?(nil,[]))
+      refute(@provider.need_run?(@aug,nil,[]))
     end
     @aug.verify
   end

@@ -2,15 +2,15 @@ require 'chef/resource'
 
 class Chef
   class Resource
-    class AugeasApply < Chef::Resource
+    class Augeas < Chef::Resource
 
       def initialize(name, run_context=nil)
         super
-        @resource_name = :augeas_apply
+        @resource_name = :augeas
         @action = :run
         @allowed_actions = [:run,:nothing]
         @changes = []
-        @provider = Chef::Provider::AugeasProvider
+        @provider = Chef::Provider::Augeas
       end
 
       def changes(arg = nil)

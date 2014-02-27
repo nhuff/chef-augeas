@@ -5,6 +5,6 @@ package 'augeas-devel' do
   action :nothing
 end.run_action(:install)
 
-chef_gem 'augeas' do
+chef_gem 'ruby-augeas' do
   action :install
 end
