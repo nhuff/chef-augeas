@@ -8,3 +8,12 @@ guard :minitest do
 end
 
 notification :off
+
+guard 'kitchen' do
+  watch(%r{test/integration/.+})
+  watch(%r{^recipes/(.+)\.rb$})
+  watch(%r{^attributes/(.+)\.rb$})
+  watch(%r{^files/(.+)})
+  watch(%r{^templates/(.+)})
+  watch(%r{^libraries/(.+)\.rb})
+end
