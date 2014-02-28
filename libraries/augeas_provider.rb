@@ -1,3 +1,4 @@
+# rubocop:disable Eval,CyclomaticComplexity
 require 'chef/provider'
 require 'chef/util/diff'
 require 'chef/log'
@@ -6,9 +7,9 @@ require 'set'
 
 class Chef
   class Provider
+    # Chef Provider for augeas resource
     class Augeas < Chef::Provider
-
-      def initialize(new_resource,run_context=nil)
+      def initialize(new_resource,run_context = nil)
         super(new_resource,run_context)
         require 'augeas'
       end
@@ -18,12 +19,12 @@ class Chef
       end
 
       def action_run
-        aug = ::Augeas::open(nil,nil,::Augeas::SAVE_NEWFILE)
-        changes = parse_changes(@new_resource.changes())
+        aug = ::Augeas.open(nil,nil,::Augeas::SAVE_NEWFILE)
+        changes = parse_changes(@new_resource.changes)
         if need_run?(aug,@new_resource.run_if,changes)
           execute_changes(aug,changes)
         end
-        aug.close()
+        aug.close
       end
 
       def need_run?(aug,run_if,changes)
@@ -33,23 +34,23 @@ class Chef
           o_i = true
         end
         i_s = in_sync?(aug,changes)
-        return (o_i and !i_s)
+        return (o_i && !i_s)
       end
 
       def execute_changes(aug,changes)
         aug.set('/augeas/save','overwrite')
         aug.load
-        changes.map{|x| execute_change(aug,x)}
-        result = aug.save
+        changes.map { |x| execute_change(aug,x) }
+        aug.save
       end
 
       def in_sync?(aug,changes)
-        changes.map{|x| execute_change(aug,x)}
+        changes.map { |x| execute_change(aug,x) }
         aug.save
         saved_events = aug.match('/augeas/events/saved')
         if saved_events.size > 0
-          saved_files  = Set.new(saved_events.map{|x| aug.get(x).sub(/^\/files/,'')})
-          saved_files.map{|x| ::File.delete(x+".augnew")}
+          saved_files  = Set.new(saved_events.map { |x| aug.get(x).sub(/^\/files/,'') })
+          saved_files.map { |x| ::File.delete(x + '.augnew') }
           return false
         end
         return true
@@ -62,13 +63,13 @@ class Chef
         when 'match'
           return process_match(aug,guard)
         else
-          raise ArgumentError,"#{guard[0]} is not a valid matcher in run_if"
+          fail ArgumentError,"#{guard[0]} is not a valid matcher in run_if"
         end
       end
 
       def process_match(aug,guard)
         if guard.length < 4
-          raise ArgumentError,"match requires at least 3 arguments" 
+          fail ArgumentError,'match requires at least 3 arguments'
         end
 
         ret = false
@@ -77,7 +78,7 @@ class Chef
         case verb
         when 'size'
           if guard.length != 5
-            raise ArgumentError,"match with size requires 4 args"
+            fail ArgumentError,'match with size requires 4 args'
           end
           comp = guard[3]
           val  = guard[4].to_i
@@ -97,23 +98,23 @@ class Chef
           val = eval guard[3]
           ret = !(matches == val)
         else
-          raise ArgumentError,"verb #{verb} not supported by match" 
+          fail ArgumentError,"verb #{verb} not supported by match"
         end
         return ret
       end
 
       def process_get(aug,guard)
-        raise ArgumentError,"get requires 3 arguments" if guard.length != 4
+        fail ArgumentError,'get requires 3 arguments' if guard.length != 4
         ret = false
         path,comp,value = guard[1],guard[2],guard[3]
         unless ['>','<','<=','>=','==','!=','=~'].include?(comp)
-          raise ArgumentError,"Uknown comparator #{comp}"
+          fail ArgumentError,"Uknown comparator #{comp}"
         end
         cur = aug.get(path) || ''
 
         case comp
         when '>','<','<=','>='
-          if is_numeric?(cur) and is_numeric?(value)
+          if numeric?(cur) && numeric?(value)
             curf = cur.to_f
             valf = value.to_f
             ret = curf.send(comp,valf)
@@ -131,12 +132,12 @@ class Chef
         return ret
       end
 
-      def is_numeric?(s)
+      def numeric?(s)
         case s
         when Fixnum
           true
         when String
-          s.match(/\A[+-]?\d+?(\.\d+)?\Z/n) == nil ? false : true
+          s.match(/\A[+-]?\d+?(\.\d+)?\Z/n).nil? ? false : true
         else
           false
         end
@@ -145,61 +146,60 @@ class Chef
       def execute_change(aug,change)
         case change[0]
         when 'set'
-          raise ArgumentError,"set takes two args" unless change.length()==3
+          fail ArgumentError,'set takes two args' unless change.length == 3
           aug.set(change[1],change[2])
         when 'setm'
-          raise ArgumentError,"setm takes three args" unless change.length()==4
+          fail ArgumentError,'setm takes three args' unless change.length == 4
           aug.setm(change[1],change[2],change[3])
         when 'rm','remove'
-          raise ArgumentError,"rm takes one argument" unless change.length()==2
+          fail ArgumentError,'rm takes one argument' unless change.length == 2
           aug.rm(change[1])
         when 'clear'
-          raise ArgumentError,"clear takes one argument" unless change.length()==2
+          fail ArgumentError,'clear takes one argument' unless change.length == 2
           aug.clear(change[1])
         when 'clearm'
-          raise ArgumentError,"clearm takes two arguments" unless change.length()==3
+          fail ArgumentError,'clearm takes two arguments' unless change.length == 3
           aug.clearm(change[1],change[2])
         when 'ins','insert'
-          raise ArgumentError,"insert takes three arguments" unless change.length()==4
+          fail ArgumentError,'insert takes three arguments' unless change.length == 4
           case change[2]
           when 'before'
             before = true
           when 'after'
             before = false
           else
-            raise ArgumentError,'location for insert must be before or after'
+            fail ArgumentError,'location for insert must be before or after'
           end
           aug.insert(change[3],change[1],before)
         when 'mv','move'
-          raise ArgumentError,"mv takes two arguments" unless change.length()==3
+          fail ArgumentError,'mv takes two arguments' unless change.length == 3
           aug.mv(change[1],change[2])
         when 'defvar'
-          raise ArgumentError,"defvar takes two arguments" unless change.length()==3
+          fail ArgumentError,'defvar takes two arguments' unless change.length == 3
           aug.defvar(change[1],change[2])
         when 'defnode'
-          raise ArgumentError,"defvar takes three arguments" unless change.length()==4
+          fail ArgumentError,'defvar takes three arguments' unless change.length == 4
           aug.defnode(change[1],change[2],change[3])
         else
-          raise ArgumentError,"Unkown augeas command #{change[0]}"
+          fail ArgumentError,"Unkown augeas command #{change[0]}"
         end
       end
 
       def parse_changes(changes)
-        changes.map{|x| parse_args(x)}
+        changes.map { |x| parse_args(x) }
       end
 
       def parse_args(args)
         ret = []
         rest = args
-        token = nil
-        while rest != "" 
+        while rest != ''
           token,rest = parse_token(rest)
           ret << token
         end
         return ret
       end
 
-      #This is kind of ugly
+      # This is kind of ugly
       def parse_token(input)
         state = 'run'
         stack = []
@@ -255,18 +255,16 @@ class Chef
             end
             ret << chr
           else
-           ret << chr
-          end 
+            ret << chr
+          end
         end
         if state == 'halt'
           sc.scan(/\s*/)
           return [ret,sc.rest]
         else
-          raise ArgumentError,"Couldn't parse path expresion from #{path}"
+          fail ArgumentError,"Couldn't parse path expresion from #{path}"
         end
       end
-
     end
   end
 end
-

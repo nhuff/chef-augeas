@@ -7,7 +7,7 @@ augeas 'sysconfig_test' do
   changes 'set /files/etc/sysconfig/test/TEST b'
 end
 
-#None of the following should change file
+# None of the following should change file
 augeas 'sysconfig_get_equal_test' do
   changes 'set /files/etc/sysconfig/test/TEST c'
   run_if  'get /files/etc/sysconfig/test/TEST == a'

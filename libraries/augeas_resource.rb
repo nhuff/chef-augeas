@@ -2,9 +2,9 @@ require 'chef/resource'
 
 class Chef
   class Resource
+    # Resource decleration for augeas resource
     class Augeas < Chef::Resource
-
-      def initialize(name, run_context=nil)
+      def initialize(name, run_context = nil)
         super
         @resource_name = :augeas
         @action = :run
@@ -14,21 +14,23 @@ class Chef
       end
 
       def changes(arg = nil)
-        if arg.class == ''.class
-          arg = [arg]
-        end
+        arg = [arg] if arg.class == ''.class
         set_or_return(:changes,arg,kind_of: Array,required: true)
       end
-      def incl(arg=nil)
+
+      def incl(arg = nil)
         set_or_return(:incl,arg,kind_of: String)
       end
-      def context(arg=nil)
+
+      def context(arg = nil)
         set_or_return(:context,arg,kind_of: String)
       end
-      def lens(arg=nil)
+
+      def lens(arg = nil)
         set_or_return(:lens,arg,kind_of: String)
       end
-      def run_if(arg=nil)
+
+      def run_if(arg = nil)
         set_or_return(:lens,arg,kind_of: String)
       end
     end

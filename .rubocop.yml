@@ -1,0 +1,15 @@
+---
+SpaceAfterComma:
+  Enabled: false
+Encoding:
+  Enabled: false
+WordArray:
+  Enabled: false
+ClassLength:
+  Enabled: false
+MethodLength:
+  Enabled: false
+LineLength:
+  Enabled: false
+RedundantReturn:
+  Enabled: false

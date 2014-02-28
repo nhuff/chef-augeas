@@ -2,6 +2,7 @@ require 'test_helper'
 require 'augeas_resource'
 require 'augeas_provider'
 
+# Tests for augeas chef resource
 class AugeasTest < MiniTest::Test
   def setup
     @resource = Chef::Resource::Augeas.new('test')

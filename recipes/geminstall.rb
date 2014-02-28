@@ -1,5 +1,5 @@
 node.set['build_essential']['compiletime'] = true
-include_recipe "build-essential"
+include_recipe 'build-essential'
 
 package 'augeas-devel' do
   action :nothing

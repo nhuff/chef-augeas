@@ -1,4 +1,4 @@
-$:.unshift(File.expand_path("../../libraries", __FILE__))
+$LOAD_PATH.unshift(File.expand_path('../../libraries', __FILE__))
 
 require 'rubygems'
 require 'minitest'

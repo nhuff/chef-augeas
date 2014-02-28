@@ -2,13 +2,14 @@ require 'test_helper'
 require 'augeas_provider'
 require 'augeas_resource'
 
+# Tests for setting changes
 class AugeasProviderSetTest < Minitest::Test
   def setup
     @node = Chef::Node.new
     @events = Chef::EventDispatch::Dispatcher.new
     @run_context = Chef::RunContext.new(@node, {}, @events)
-    @new_resource = Chef::Resource::Augeas.new("test",@run_context)
-    
+    @new_resource = Chef::Resource::Augeas.new('test',@run_context)
+
     @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
     @aug = Minitest::Mock.new
     @aug.expect(:set,true,['/augeas/save','overwrite'])
@@ -32,7 +33,7 @@ class AugeasProviderSetTest < Minitest::Test
   def test_setm_command
     @new_resource.changes('setm /files/etc/hosts/* foo localhost.localdomain')
 
-    @aug.expect(:setm,true,["/files/etc/hosts/*",'foo','localhost.localdomain'])
+    @aug.expect(:setm,true,['/files/etc/hosts/*','foo','localhost.localdomain'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -68,7 +69,7 @@ class AugeasProviderSetTest < Minitest::Test
   def test_clearm_command
     @new_resource.changes("clearm /files/etc/hosts/[. = 'localhost.localdomain'] *")
 
-    @aug.expect(:clearm,true,["/files/etc/hosts/[. = 'localhost.localdomain']","*"])
+    @aug.expect(:clearm,true,["/files/etc/hosts/[. = 'localhost.localdomain']",'*'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -78,9 +79,9 @@ class AugeasProviderSetTest < Minitest::Test
   end
 
   def test_ins_before_command
-    @new_resource.changes("ins foo before /files/etc/hosts[last()]")
+    @new_resource.changes('ins foo before /files/etc/hosts[last()]')
 
-    @aug.expect(:insert,true,["/files/etc/hosts[last()]","foo",true])
+    @aug.expect(:insert,true,['/files/etc/hosts[last()]','foo',true])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -90,9 +91,9 @@ class AugeasProviderSetTest < Minitest::Test
   end
 
   def test_ins_after_command
-    @new_resource.changes("ins foo after /files/etc/hosts[last()]")
+    @new_resource.changes('ins foo after /files/etc/hosts[last()]')
 
-    @aug.expect(:insert,true,["/files/etc/hosts[last()]","foo",false])
+    @aug.expect(:insert,true,['/files/etc/hosts[last()]','foo',false])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -100,20 +101,20 @@ class AugeasProviderSetTest < Minitest::Test
     end
     @aug.verify
   end
-  
+
   def test_ins_fail
-    @new_resource.changes("ins foo ter /files/etc/hosts[last()]")
+    @new_resource.changes('ins foo ter /files/etc/hosts[last()]')
 
     @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
-     assert_raises(ArgumentError) {@provider.run_action(:run)}
+      assert_raises(ArgumentError) { @provider.run_action(:run) }
     end
   end
 
   def test_mv_command
-    @new_resource.changes("mv /foo /bar")
+    @new_resource.changes('mv /foo /bar')
 
-    @aug.expect(:mv,true,["/foo","/bar"])
+    @aug.expect(:mv,true,['/foo','/bar'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -123,9 +124,9 @@ class AugeasProviderSetTest < Minitest::Test
   end
 
   def test_defvar_command
-    @new_resource.changes("defvar foo /bar")
+    @new_resource.changes('defvar foo /bar')
 
-    @aug.expect(:defvar,true,["foo","/bar"])
+    @aug.expect(:defvar,true,['foo','/bar'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -135,9 +136,9 @@ class AugeasProviderSetTest < Minitest::Test
   end
 
   def test_defnode_command
-    @new_resource.changes("defnode foo /bar baz")
+    @new_resource.changes('defnode foo /bar baz')
 
-    @aug.expect(:defnode,true,["foo","/bar","baz"])
+    @aug.expect(:defnode,true,['foo','/bar','baz'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -147,18 +148,18 @@ class AugeasProviderSetTest < Minitest::Test
   end
 
   def test_nonexistent_command
-    @new_resource.changes("asdf foo /bar baz")
+    @new_resource.changes('asdf foo /bar baz')
     @aug.expect(:close,true)
     Augeas.stub(:open, @aug) do
-     assert_raises(ArgumentError) {@provider.run_action(:run)}
+      assert_raises(ArgumentError) { @provider.run_action(:run) }
     end
   end
 
   def test_command_array
-    @new_resource.changes(["defvar foo /bar","rm /bar"])
+    @new_resource.changes(['defvar foo /bar','rm /bar'])
 
-    @aug.expect(:defvar,true,["foo","/bar"])
-    @aug.expect(:rm,true,["/bar"])
+    @aug.expect(:defvar,true,['foo','/bar'])
+    @aug.expect(:rm,true,['/bar'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)
@@ -168,13 +169,14 @@ class AugeasProviderSetTest < Minitest::Test
   end
 end
 
+# Tests for augeas provder
 class AugeasProviderTest < Minitest::Test
   def setup
     @node = Chef::Node.new
     @events = Chef::EventDispatch::Dispatcher.new
     @run_context = Chef::RunContext.new(@node, {}, @events)
-    @new_resource = Chef::Resource::Augeas.new("test",@run_context)
-    
+    @new_resource = Chef::Resource::Augeas.new('test',@run_context)
+
     @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
     @aug = Minitest::Mock.new
   end
@@ -183,7 +185,6 @@ class AugeasProviderTest < Minitest::Test
     assert_kind_of(Chef::Provider, @provider)
     assert_kind_of(Chef::Provider::Augeas, @provider)
   end
-
 
   def test_get
     @aug.expect(:get,'bar',['/foo'])
@@ -334,5 +335,4 @@ class AugeasProviderTest < Minitest::Test
     end
     @aug.verify
   end
-
 end
