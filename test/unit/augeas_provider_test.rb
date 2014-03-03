@@ -2,6 +2,49 @@ require 'test_helper'
 require 'augeas_provider'
 require 'augeas_resource'
 
+# Tests for incl and lens
+class AugeasProviderInclLens < Minitest::Test
+  def setup
+    @node = Chef::Node.new
+    @events = Chef::EventDispatch::Dispatcher.new
+    @run_context = Chef::RunContext.new(@node, {}, @events)
+    @new_resource = Chef::Resource::Augeas.new('test',@run_context)
+    @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
+    @aug = Minitest::Mock.new
+    @aug.expect(:load,true)
+    @aug.expect(:match,[],['/augeas//error'])
+  end
+
+  def test_incl
+    @new_resource.incl('/etc/sysconfig/test1')
+    @new_resource.lens('Sysconfig.lns')
+    @aug.expect(:set,true,['/augeas/load/Xfm/lens','Sysconfig.lns'])
+    @aug.expect(:set,true,['/augeas/load/Xfm/incl','/etc/sysconfig/test1'])
+    Augeas.stub(:open, @aug) do
+      @provider.open_augeas
+    end
+    @aug.verify
+  end
+
+  def test_lens
+    @new_resource.lens('Sysconfig.lns')
+
+    @aug.expect(:set,true,['/augeas/load/Xfm/lens','Sysconfig.lns'])
+    Augeas.stub(:open, @aug) do
+      @provider.open_augeas
+    end
+    @aug.verify
+  end
+
+  def test_incl_without_lens
+    @new_resource.incl('/etc/sysconfig/test1')
+
+    Augeas.stub(:open, @aug) do
+      assert_raises(ArgumentError) { @provider.open_augeas }
+    end
+  end
+end
+
 # Tests for setting changes
 class AugeasProviderSetTest < Minitest::Test
   def setup
@@ -14,8 +57,10 @@ class AugeasProviderSetTest < Minitest::Test
     @aug = Minitest::Mock.new
     @aug.expect(:set,true,['/augeas/save','overwrite'])
     @aug.expect(:load,true)
+    @aug.expect(:load,true)
     @aug.expect(:save,true)
     @aug.expect(:close,true)
+    @aug.expect(:match,[],['/augeas//error'])
   end
 
   def test_set_command

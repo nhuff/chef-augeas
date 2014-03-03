@@ -22,16 +22,12 @@ class Chef
         set_or_return(:incl,arg,kind_of: String)
       end
 
-      def context(arg = nil)
-        set_or_return(:context,arg,kind_of: String)
-      end
-
       def lens(arg = nil)
         set_or_return(:lens,arg,kind_of: String)
       end
 
       def run_if(arg = nil)
-        set_or_return(:lens,arg,kind_of: String)
+        set_or_return(:run_if,arg,kind_of: String)
       end
     end
   end

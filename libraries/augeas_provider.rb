@@ -18,8 +18,26 @@ class Chef
         true
       end
 
+      def open_augeas
+        if @new_resource.incl && !@new_resource.lens
+          fail ArgumentError, "can't set incl without lens"
+        end
+        flags = ::Augeas::SAVE_NEWFILE | ::Augeas::NO_LOAD
+        flags = flags | ::Augeas::NO_MODL_AUTOLOAD if @new_resource.lens
+        aug = ::Augeas.open(nil,nil,flags)
+        if @new_resource.lens
+          aug.set('/augeas/load/Xfm/lens',@new_resource.lens)
+        end
+        if @new_resource.incl
+          aug.set('/augeas/load/Xfm/incl',@new_resource.incl)
+        end
+        aug.load
+        print_errors(aug,'/augeas//error')
+        aug
+      end
+
       def action_run
-        aug = ::Augeas.open(nil,nil,::Augeas::SAVE_NEWFILE)
+        aug = open_augeas
         changes = parse_changes(@new_resource.changes)
         if need_run?(aug,@new_resource.run_if,changes)
           execute_changes(aug,changes)
@@ -263,6 +281,18 @@ class Chef
           return [ret,sc.rest]
         else
           fail ArgumentError,"Couldn't parse path expresion from #{path}"
+        end
+      end
+
+      def print_errors(aug,error)
+        errors = aug.match(error)
+        errors.each do |errnode|
+          error = aug.get(errnode)
+          Chef::Log.error("#{errnode} = #{error}") unless error.nil?
+          aug.match("#{errnode}/*").each do |subnode|
+            subvalue = aug.get(subnode)
+            Chef::Log.error("#{subnode} = #{subvalue}")
+          end
         end
       end
     end

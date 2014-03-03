@@ -7,6 +7,12 @@ augeas 'sysconfig_test' do
   changes 'set /files/etc/sysconfig/test/TEST b'
 end
 
+augeas 'sysconfig_lens' do
+  changes 'set /files/etc/sysconfig/test/TEST_LENS sysconfig'
+  lens    'Sysconfig.lns'
+  incl    '/etc/sysconfig/test'
+end
+
 # None of the following should change file
 augeas 'sysconfig_get_equal_test' do
   changes 'set /files/etc/sysconfig/test/TEST c'
