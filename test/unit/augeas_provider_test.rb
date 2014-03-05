@@ -61,6 +61,7 @@ class AugeasProviderSetTest < Minitest::Test
     @aug.expect(:save,true)
     @aug.expect(:close,true)
     @aug.expect(:match,[],['/augeas//error'])
+    @aug.expect(:match,[],['/augeas/events/saved'])
   end
 
   def test_set_command
@@ -362,7 +363,6 @@ class AugeasProviderTest < Minitest::Test
 
   def test_not_in_sync
     @aug.expect(:match,['/augeas/events/saved'],['/augeas/events/saved'])
-    @aug.expect(:get,'foo',['/augeas/events/saved'])
     @aug.expect(:save,true)
     Augeas.stub(:open, @aug) do
       File.stub(:delete,true) do

@@ -73,3 +73,7 @@ augeas 'sysconfig_match_not_equals' do
   changes 'set /files/etc/sysconfig/test/TEST_NUM 2'
   run_if  'match /files/etc/sysconfig/test/TEST_NUM[. = "1"] != ["/files/etc/sysconfig/test/TEST_NUM"]'
 end
+
+augeas 'sysconfig_no_change' do
+  changes 'set /files/etc/sysconfig/test/TEST b'
+end

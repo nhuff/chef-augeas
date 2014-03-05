@@ -56,6 +56,11 @@ class Chef
       end
 
       def execute_changes(aug,changes)
+        saved_events = aug.match('/augeas/events/saved')
+        saved_files  = Set.new(saved_events.map { |x| aug.get(x).sub(/^\/files/,'') })
+        diffs = saved_files.map { |x| Chef::Util::Diff.new.udiff(x,x + '.augnew') }
+        diffs.map { |x| Chef::Log.info(x) }
+        saved_files.map { |x| ::File.delete(x + '.augnew') }
         aug.set('/augeas/save','overwrite')
         aug.load
         changes.map { |x| execute_change(aug,x) }
@@ -66,11 +71,7 @@ class Chef
         changes.map { |x| execute_change(aug,x) }
         aug.save
         saved_events = aug.match('/augeas/events/saved')
-        if saved_events.size > 0
-          saved_files  = Set.new(saved_events.map { |x| aug.get(x).sub(/^\/files/,'') })
-          saved_files.map { |x| ::File.delete(x + '.augnew') }
-          return false
-        end
+        return false if saved_events.size > 0
         return true
       end
 
