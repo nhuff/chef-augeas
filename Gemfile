@@ -15,6 +15,7 @@ end
 group :unit,:devel do
 gem 'rubocop'
 gem 'ruby-augeas'
+gem 'minitest'
 end
 
 group :devel do
