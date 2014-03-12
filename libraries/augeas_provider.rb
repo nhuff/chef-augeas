@@ -18,6 +18,15 @@ class Chef
         true
       end
 
+      def action_run
+        aug = open_augeas
+        changes = parse_changes(@new_resource.changes)
+        if need_run?(aug,@new_resource.run_if,changes)
+          execute_changes(aug,changes)
+        end
+        aug.close
+      end
+
       def open_augeas
         if @new_resource.incl && !@new_resource.lens
           fail ArgumentError, "can't set incl without lens"
@@ -31,18 +40,13 @@ class Chef
         if @new_resource.incl
           aug.set('/augeas/load/Xfm/incl',@new_resource.incl)
         end
-        aug.load
-        print_errors(aug,'/augeas//error')
-        aug
-      end
-
-      def action_run
-        aug = open_augeas
-        changes = parse_changes(@new_resource.changes)
-        if need_run?(aug,@new_resource.run_if,changes)
-          execute_changes(aug,changes)
+        begin
+          aug.load!
+        rescue ::Augeas::Error => e
+          log_errors(aug)
+          raise e
         end
-        aug.close
+        aug
       end
 
       def need_run?(aug,run_if,changes)
@@ -61,15 +65,26 @@ class Chef
         diffs = saved_files.map { |x| Chef::Util::Diff.new.udiff(x,x + '.augnew') }
         diffs.map { |x| Chef::Log.info(x) }
         saved_files.map { |x| ::File.delete(x + '.augnew') }
+
         aug.set('/augeas/save','overwrite')
-        aug.load
-        changes.map { |x| execute_change(aug,x) }
-        aug.save
+        begin
+          aug.load!
+          changes.map { |x| execute_change(aug,x) }
+          aug.save!
+        rescue ::Augeas::Error => e
+          log_errors(aug)
+          raise e
+        end
       end
 
       def in_sync?(aug,changes)
         changes.map { |x| execute_change(aug,x) }
-        aug.save
+        begin
+          aug.save!
+        rescue ::Augeas::Error => e
+          log_errors(aug)
+          raise e
+        end
         saved_events = aug.match('/augeas/events/saved')
         return false if saved_events.size > 0
         return true
@@ -285,8 +300,8 @@ class Chef
         end
       end
 
-      def print_errors(aug,error)
-        errors = aug.match(error)
+      def log_errors(aug)
+        errors = aug.match('/augeas//error')
         errors.each do |errnode|
           error = aug.get(errnode)
           Chef::Log.error("#{errnode} = #{error}") unless error.nil?

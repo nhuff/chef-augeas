@@ -11,8 +11,7 @@ class AugeasProviderInclLens < Minitest::Test
     @new_resource = Chef::Resource::Augeas.new('test',@run_context)
     @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
     @aug = Minitest::Mock.new
-    @aug.expect(:load,true)
-    @aug.expect(:match,[],['/augeas//error'])
+    @aug.expect(:load!,true)
   end
 
   def test_incl
@@ -56,11 +55,10 @@ class AugeasProviderSetTest < Minitest::Test
     @provider = Chef::Provider::Augeas.new(@new_resource,@run_context)
     @aug = Minitest::Mock.new
     @aug.expect(:set,true,['/augeas/save','overwrite'])
-    @aug.expect(:load,true)
-    @aug.expect(:load,true)
-    @aug.expect(:save,true)
+    @aug.expect(:load!,true)
+    @aug.expect(:load!,true)
+    @aug.expect(:save!,true)
     @aug.expect(:close,true)
-    @aug.expect(:match,[],['/augeas//error'])
     @aug.expect(:match,[],['/augeas/events/saved'])
   end
 
@@ -363,7 +361,7 @@ class AugeasProviderTest < Minitest::Test
 
   def test_not_in_sync
     @aug.expect(:match,['/augeas/events/saved'],['/augeas/events/saved'])
-    @aug.expect(:save,true)
+    @aug.expect(:save!,true)
     Augeas.stub(:open, @aug) do
       File.stub(:delete,true) do
         assert(@provider.need_run?(@aug,nil,[]))
@@ -374,7 +372,7 @@ class AugeasProviderTest < Minitest::Test
 
   def test_in_sync
     @aug.expect(:match,[],['/augeas/events/saved'])
-    @aug.expect(:save,true)
+    @aug.expect(:save!,true)
     Augeas.stub(:open, @aug) do
       refute(@provider.need_run?(@aug,nil,[]))
     end
