@@ -1,4 +1,7 @@
 ---
+AllCops:
+  Excludes:
+    - vendor/**
 SpaceAfterComma:
   Enabled: false
 Encoding:
