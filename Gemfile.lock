@@ -204,6 +204,7 @@ DEPENDENCIES
   guard-rubocop
   kitchen-docker
   kitchen-vagrant
+  minitest
   rake
   rubocop
   ruby-augeas

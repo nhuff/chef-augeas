@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'chef','~>11'
 group :deploy,:devel do
 gem "berkshelf", github: "berkshelf/berkshelf"
 end
@@ -9,7 +10,6 @@ gem 'test-kitchen'
 gem 'kitchen-vagrant'
 gem 'kitchen-docker'
 gem 'rake'
-gem 'chef','~>11'
 end
 
 group :unit,:devel do
