@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'chef','~>11'
 gem 'rake'
-group :deploy,:devel do
+group :deploy,:devel,:integration do
 gem "berkshelf", github: "berkshelf/berkshelf"
 end
 
