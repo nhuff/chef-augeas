@@ -1,0 +1,9 @@
+DEPENDENCIES
+  augeas
+    path: .
+    metadata: true
+
+GRAPH
+  augeas (0.1.0)
+    build-essential (>= 0.0.0)
+  build-essential (1.4.4)
