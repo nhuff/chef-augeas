@@ -7,3 +7,6 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          IO.read(File.join(File.dirname(__FILE__), 'VERSION'))
 
 depends 'build-essential'
+
+suppoerts 'rhel'
+supports 'fedora'
