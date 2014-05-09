@@ -15,17 +15,17 @@ Platforms:
 * RHEL Family
 
 # Resources and Providers
-## `augeas`
+### `augeas`
 
 The `augeas` provider is used to make changes to files using the augeas library.
 
-### Attributes
+#### Attributes
 * `changes`(required) - A string or list of strings that contain augeas commands to run
 * `lens`(optional) - A specific lens to use to transform the file being modified
 * `incl`(optional) - Only include the specified file in the augeas context. If this is set lens must also be specified.
 * `run_if`(optional) - Only run if the given augeas matcher is true
 
-### Examples
+#### Examples
 
 Set the sysconfig variable `TEST` in the `/etc/sysconfig/test` file to b
 ```
@@ -56,7 +56,7 @@ end
 
 # Recipes
 
-## augeas::geminstall
+### augeas::geminstall
 
 This recipe will install the augeas development libraries and then use `chef_gem` to
 make the `ruby-augeas` gem available to the resource.
