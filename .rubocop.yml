@@ -1,7 +1,8 @@
 ---
 AllCops:
-  Excludes:
-    - vendor/**
+  Exclude:
+    - 'vendor/**'
+    - '**/metadata.rb'
 SpaceAfterComma:
   Enabled: false
 Encoding:

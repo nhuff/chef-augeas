@@ -1,6 +1,7 @@
+# rubocop:disable HashSyntax
 require 'rake/testtask'
 require 'rubocop/rake_task'
-require 'ridley'
+require 'kitchen/rake_tasks'
 
 namespace :test do
   Rubocop::RakeTask.new
@@ -10,15 +11,9 @@ namespace :test do
     t.test_files = FileList['test/unit/**/*_test.rb']
     t.verbose = true
   end
+  Kitchen::RakeTasks.new
+
+  task :all => [:rubocop,:test,'kitchen:all']
 end
 
-namespace :deploy do
-  task 'pin' do
-    env = ENV['env'] || '_default'
-    ver = IO.read(File.join(File.dirname(__FILE__), 'VERSION'))
-    ridley = Ridley.from_chef_config
-    dev = ridley.environment.find('dev')
-    dev.cookbook_versions['augeas'] = "= #{ver.chomp()}"
-    dev.save
-  end
-end
+task :default => ['test:all']

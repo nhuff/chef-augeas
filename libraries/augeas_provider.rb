@@ -32,7 +32,7 @@ class Chef
           fail ArgumentError, "can't set incl without lens"
         end
         flags = ::Augeas::SAVE_NEWFILE | ::Augeas::NO_LOAD
-        flags = flags | ::Augeas::NO_MODL_AUTOLOAD if @new_resource.lens
+        flags |= ::Augeas::NO_MODL_AUTOLOAD if @new_resource.lens
         aug = ::Augeas.open(nil,nil,flags)
         if @new_resource.lens
           aug.set('/augeas/load/Xfm/lens',@new_resource.lens)

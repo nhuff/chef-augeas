@@ -2,25 +2,14 @@ source 'https://rubygems.org'
 
 gem 'chef','~>11'
 gem 'rake'
-group :deploy,:devel,:integration do
-gem "berkshelf", github: "berkshelf/berkshelf"
-end
-
-group :integration,:devel do
+gem "berkshelf", '~>3'
 gem 'test-kitchen'
 gem 'kitchen-vagrant'
 gem 'kitchen-docker'
-end
-
-group :unit,:devel do
 gem 'rubocop'
 gem 'ruby-augeas'
 gem 'minitest'
-end
-
-group :devel do
 gem 'guard-rubocop'
 gem 'guard'
 gem 'guard-minitest'
 gem 'guard-kitchen'
-end
