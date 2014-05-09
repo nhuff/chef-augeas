@@ -8,5 +8,5 @@ version          IO.read(File.join(File.dirname(__FILE__), 'VERSION'))
 
 depends 'build-essential'
 
-suppoerts 'rhel'
+supports 'rhel'
 supports 'fedora'
