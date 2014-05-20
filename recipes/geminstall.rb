@@ -1,4 +1,4 @@
-node.set['build_essential']['compile_time'] = true
+node.set['build-essential']['compile_time'] = true
 include_recipe 'build-essential'
 
 node['augeas']['packages'].each do |package_name|
