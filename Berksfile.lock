@@ -4,6 +4,6 @@ DEPENDENCIES
     metadata: true
 
 GRAPH
-  augeas (0.1.0)
+  augeas (0.1.1)
     build-essential (>= 0.0.0)
   build-essential (2.0.2)
