@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/test-kitchen/test-kitchen.git
+  revision: 3d3d024443e89bb5a7182e22b5ce2e59b8964853
+  ref: 3d3d024443e89bb5a7182
+  specs:
+    test-kitchen (1.2.2.dev)
+      mixlib-shellout (~> 1.2)
+      net-scp (~> 1.1)
+      net-ssh (~> 2.7)
+      safe_yaml (~> 1.0)
+      thor (~> 0.18)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -181,12 +193,6 @@ GEM
       dep_selector (~> 1.0)
       semverse (~> 1.1)
     systemu (2.5.2)
-    test-kitchen (1.2.1)
-      mixlib-shellout (~> 1.2)
-      net-scp (~> 1.1)
-      net-ssh (~> 2.7)
-      safe_yaml (~> 1.0)
-      thor (~> 0.18)
     thor (0.19.1)
     thor-scmversion (1.4.0)
       thor
@@ -213,5 +219,5 @@ DEPENDENCIES
   rake
   rubocop
   ruby-augeas
-  test-kitchen
+  test-kitchen!
   thor-scmversion
