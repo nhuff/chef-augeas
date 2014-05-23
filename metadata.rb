@@ -10,3 +10,4 @@ depends 'build-essential'
 
 supports 'rhel'
 supports 'fedora'
+supports 'ubuntu'
