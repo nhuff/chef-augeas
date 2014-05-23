@@ -188,6 +188,8 @@ GEM
       safe_yaml (~> 1.0)
       thor (~> 0.18)
     thor (0.19.1)
+    thor-scmversion (1.4.0)
+      thor
     timers (2.0.0)
       hitimes
     varia_model (0.3.2)
@@ -212,3 +214,4 @@ DEPENDENCIES
   rubocop
   ruby-augeas
   test-kitchen
+  thor-scmversion

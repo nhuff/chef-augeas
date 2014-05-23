@@ -13,3 +13,4 @@ bin/*
 
 .kitchen/
 .kitchen.local.yml
+VERSION
