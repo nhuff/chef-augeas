@@ -6,13 +6,13 @@ into a generic tree like structure which can then be modified and transformed ba
 the original format of the file.  This cookbook provides a resource that allows recipes to
 modify files using augeas.
 
-Right now it should work on RHEL/Fedora platforms.  I think the only change needed to support other platforms is modifying the geminstall recipe to install the right packages.
-
 # Requirements
 
 Platforms:
 
 * RHEL Family
+* Debian
+* Ubuntu
 
 # Resources and Providers
 ### `augeas`
@@ -66,6 +66,7 @@ TODO: This has the redhat package name hard coded right now.
 # Author
 
 Author:: Nathan Huff (nhuff@acm.org)
+Contributor:: Pierre Rambaud
 
 # Acknowledgements
 
