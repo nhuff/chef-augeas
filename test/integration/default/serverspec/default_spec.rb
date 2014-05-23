@@ -1,13 +1,11 @@
 require 'spec_helper'
 
-describe file('/etc/sysconfig/test') do
+t_file = ''
+t_file = '/etc/default/test' if ['Ubuntu','Debian'].include?(os[:family])
+t_file = '/etc/sysconfig/test' if ['Fedora','RedHat'].include?(os[:family])
+
+describe file(t_file) do
   its(:content) { should match(/^TEST=b$/) }
-end
-
-describe file('/etc/sysconfig/test') do
   its(:content) { should match(/^TEST_NUM=1$/) }
-end
-
-describe file('/etc/sysconfig/test') do
   its(:content) { should match(/^TEST_LENS=sysconfig$/) }
 end
