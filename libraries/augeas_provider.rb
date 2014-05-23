@@ -61,6 +61,11 @@ class Chef
 
       def execute_changes(aug,changes)
         saved_events = aug.match('/augeas/events/saved')
+
+        # This is to work around a bug in at least ubuntu-12.04 that causes
+        # load to not reload the files after we switch the save mode
+        saved_events.map { |x| aug.rm("/augeas#{aug.get(x)}/mtime") }
+
         saved_files  = Set.new(saved_events.map { |x| aug.get(x).sub(/^\/files/,'') })
         diffs = saved_files.map { |x| Chef::Util::Diff.new.udiff(x,x + '.augnew') }
         diffs.map { |x| Chef::Log.info(x) }
