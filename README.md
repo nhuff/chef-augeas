@@ -61,8 +61,6 @@ end
 This recipe will install the augeas development libraries and then use `chef_gem` to
 make the `ruby-augeas` gem available to the resource.
 
-TODO: This has the redhat package name hard coded right now.
-
 # Author
 
 Author:: Nathan Huff (nhuff@acm.org)
