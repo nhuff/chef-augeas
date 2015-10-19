@@ -4,7 +4,7 @@ require 'rubocop/rake_task'
 require 'kitchen/rake_tasks'
 
 namespace :test do
-  Rubocop::RakeTask.new
+  RuboCop::RakeTask.new
 
   Rake::TestTask.new do |t|
     t.libs << 'libraries' << 'test'

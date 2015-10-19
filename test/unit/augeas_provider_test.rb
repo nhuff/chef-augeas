@@ -329,7 +329,7 @@ class AugeasProviderTest < Minitest::Test
     @aug.verify
   end
 
-  def test_match_equals
+  def test_match_equals_fail
     @aug.expect(:match,['bar'],['/foo'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do

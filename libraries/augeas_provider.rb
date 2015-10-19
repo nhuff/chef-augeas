@@ -68,7 +68,7 @@ class Chef
         # load to not reload the files after we switch the save mode
         saved_events.map { |x| aug.rm("/augeas#{aug.get(x)}/mtime") }
 
-        saved_files  = Set.new(saved_events.map { |x| aug.get(x).sub(/^\/files/,'') })
+        saved_files = Set.new(saved_events.map { |x| aug.get(x).sub(%r{^/files},'') })
         diffs = saved_files.map { |x| Chef::Util::Diff.new.udiff(x,x + '.augnew') }
         diffs.map { |x| Chef::Log.info(x) }
         saved_files.map { |x| ::File.delete(x + '.augnew') }
@@ -114,7 +114,8 @@ class Chef
         end
 
         ret = false
-        path,verb = guard[1],guard[2]
+        path = guard[1]
+        verb = guard[2]
         matches = aug.match(path) || []
         case verb
         when 'size'
@@ -147,7 +148,9 @@ class Chef
       def process_get(aug,guard)
         fail ArgumentError,'get requires 3 arguments' if guard.length != 4
         ret = false
-        path,comp,value = guard[1],guard[2],guard[3]
+        path = guard[1]
+        comp = guard[2]
+        value = guard[3]
         unless ['>','<','<=','>=','==','!=','=~'].include?(comp)
           fail ArgumentError,"Uknown comparator #{comp}"
         end
