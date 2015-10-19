@@ -13,7 +13,7 @@ namespace :test do
   end
   Kitchen::RakeTasks.new
 
-  task :all => [:rubocop,:test,'kitchen:all']
+  task :all => [:rubocop,:test]
 end
 
 task :default => ['test:all']
