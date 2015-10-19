@@ -22,7 +22,9 @@ class Chef
         aug = open_augeas
         changes = parse_changes(@new_resource.changes)
         if need_run?(aug,@new_resource.run_if,changes)
-          execute_changes(aug,changes)
+          converge_by('running augeas changes') do
+            execute_changes(aug,changes)
+          end
         end
         aug.close
       end
