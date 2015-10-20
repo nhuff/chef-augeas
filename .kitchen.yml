@@ -15,6 +15,7 @@ platforms:
 suites:
   - name: default
     run_list:
+      - recipe[build-essential]
       - recipe[augeas::geminstall]
       - recipe[augeas::test]
     attributes:

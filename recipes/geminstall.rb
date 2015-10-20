@@ -1,12 +1,7 @@
-node.set['build-essential']['compile_time'] = true
-include_recipe 'build-essential'
-
 node['augeas']['packages'].each do |package_name|
-  package package_name do
-    action :nothing
-  end.run_action(:install)
+  package package_name
 end
 
 chef_gem 'ruby-augeas' do
-  action :install
+  compile_time false if Chef::Resource::ChefGem.method_defined?(:compile_time)
 end
