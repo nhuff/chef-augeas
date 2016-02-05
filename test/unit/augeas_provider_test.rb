@@ -63,9 +63,13 @@ class AugeasProviderSetTest < Minitest::Test
   end
 
   def test_set_command
-    @new_resource.changes('set /files/etc/hosts[. = \'127.0.0.1\'][last()+1] localhost.localdomain')
+    @new_resource.changes([
+      'set /files/etc/hosts[. = \'127.0.0.1\'][last()+1] localhost.localdomain',
+      'set /files/etc/hosts[. = \'127.0.0.1\'][last()+1] "value with space"'
+    ])
 
     @aug.expect(:set,true,["/files/etc/hosts[. = '127.0.0.1'][last()+1]",'localhost.localdomain'])
+    @aug.expect(:set,true,["/files/etc/hosts[. = '127.0.0.1'][last()+1]",'value with space'])
     Augeas.stub(:open, @aug) do
       @provider.stub(:in_sync?,false) do
         @provider.run_action(:run)

@@ -188,6 +188,7 @@ class Chef
       end
 
       def execute_change(aug,change)
+        change.map! { |x| x.sub(/^"/,'').sub(/"$/,'') }
         case change[0]
         when 'set'
           fail ArgumentError,'set takes two args' unless change.length == 3
