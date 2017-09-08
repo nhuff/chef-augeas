@@ -1,10 +1,10 @@
-if platform_family?('rhel','fedora')
-  conf_dir = '/etc/sysconfig'
-elsif platform_family?('debian')
-  conf_dir = '/etc/default'
-else
-  conf_dir = '/etc/sysconfig'
-end
+conf_dir = if platform_family?('rhel', 'fedora')
+             '/etc/sysconfig'
+           elsif platform_family?('debian')
+             '/etc/default'
+           else
+             '/etc/sysconfig'
+           end
 
 cookbook_file 'sysconfig_test' do
   path "#{conf_dir}/test"

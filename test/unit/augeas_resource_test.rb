@@ -10,16 +10,16 @@ class AugeasTest < MiniTest::Test
   end
 
   def test_creates_chef_resource
-    assert_instance_of(Chef::Resource::Augeas,@resource)
-    assert_kind_of(Chef::Resource,@resource)
+    assert_instance_of(Chef::Resource::Augeas, @resource)
+    assert_kind_of(Chef::Resource, @resource)
   end
 
   def test_has_a_name
-    assert_equal(@resource.name,'test')
+    assert_equal(@resource.name, 'test')
   end
 
   def test_default_action_run
-    assert_equal(:run,@resource.action)
+    assert_equal(:run, @resource.action)
   end
 
   def test_acceptable_actions
@@ -27,16 +27,16 @@ class AugeasTest < MiniTest::Test
   end
 
   def test_accepts_incl
-    assert_equal('/etc/sysconfig/test1',@resource.incl)
+    assert_equal('/etc/sysconfig/test1', @resource.incl)
   end
 
   def test_accept_string_or_array_for_changes
     @resource.changes('set foo 1')
-    assert_kind_of(Array,@resource.changes)
-    assert_equal('set foo 1',@resource.changes.pop)
+    assert_kind_of(Array, @resource.changes)
+    assert_equal('set foo 1', @resource.changes.pop)
     @resource.changes(['set foo 2'])
-    assert_kind_of(Array,@resource.changes)
-    assert_equal('set foo 2',@resource.changes.pop)
+    assert_kind_of(Array, @resource.changes)
+    assert_equal('set foo 2', @resource.changes.pop)
   end
 
   def test_accept_run_if
