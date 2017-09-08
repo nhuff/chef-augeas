@@ -4,3 +4,6 @@ when 'debian', 'ubuntu'
 else
   default['augeas']['packages'] = %w(augeas-devel)
 end
+
+# Set to false by default to maintain historic behavior
+default['augeas']['build_essential'] = false

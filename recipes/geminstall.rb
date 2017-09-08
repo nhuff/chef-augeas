@@ -1,3 +1,5 @@
+include_recipe 'build-essential' if node['augeas']['build-essential']
+
 node['augeas']['packages'].each do |package_name|
   package package_name do
     action :nothing
