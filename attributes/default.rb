@@ -1,6 +1,8 @@
 case node['platform']
 when 'debian', 'ubuntu'
   default['augeas']['packages'] = %w(libaugeas-dev pkg-config)
+when 'freebsd'
+  default['augeas']['packages'] = %w(augeas pkgconf)
 else
   default['augeas']['packages'] = %w(augeas-devel)
 end

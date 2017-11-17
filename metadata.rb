@@ -13,6 +13,8 @@ chef_version '>= 12.1'
 supports 'rhel'
 supports 'fedora'
 supports 'ubuntu'
+supports 'freebsd'
+
 source_url 'https://github.com/nhuff/chef-augeas'
 issues_url 'https://github.com/nhuff/chef-augeas/issues'
 

@@ -6,6 +6,8 @@ conf_dir = if platform_family?('rhel', 'fedora')
              '/etc/sysconfig'
            end
 
+directory conf_dir
+
 cookbook_file 'sysconfig_test' do
   path "#{conf_dir}/test"
   action :create
