@@ -13,6 +13,7 @@ Platforms:
 * RHEL Family
 * Debian
 * Ubuntu
+* FreeBSD
 
 # Resources and Providers
 ### `augeas`
