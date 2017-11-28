@@ -57,8 +57,7 @@ class Chef
               else
                 true
               end
-        i_s = in_sync?(aug, changes)
-        (o_i && !i_s)
+        (o_i && !in_sync?(aug, changes))
       end
 
       def execute_changes(aug, changes)
