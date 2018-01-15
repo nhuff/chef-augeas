@@ -23,6 +23,10 @@ augeas 'sysconfig_lens' do
   incl "#{conf_dir}/test"
 end
 
+augeas 'sysconfig_non_matched_value' do
+  changes "set /files#{conf_dir}/test/TEST_UNMATCHED }]"
+end
+
 # None of the following should change file
 augeas 'sysconfig_get_equal_test' do
   changes "set /files#{conf_dir}/test/TEST c"

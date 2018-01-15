@@ -187,7 +187,6 @@ class Chef
       end
 
       def execute_change(aug, change)
-        change.map! { |x| x.sub(/^"/, '').sub(/"$/, '') }
         case change[0]
         when 'set'
           raise ArgumentError, 'set takes two args' unless change.length == 3
@@ -235,16 +234,43 @@ class Chef
 
       def parse_args(args)
         ret = []
-        rest = args
-        while rest != ''
-          token, rest = parse_token(rest)
-          ret << token
+        command, rest = parse_command(args)
+        ret << command
+        case command
+        when 'rm', 'clear', 'remove'
+          ret = ret << parse_path(rest)[0]
+        when 'set', 'clearm', 'mv', 'defvar', 'move'
+          ret = ret.concat(parse_path(rest))
+        when 'setm'
+          base, rest = parse_path(rest)
+          rel, rest = parse_path(rest)
+          ret = ret << base << rel << rest
+        when 'ins', 'insert', 'get'
+          node, rest = parse_path(rest)
+          ret = ret << node << rest.slice!(/.+? /).strip << rest
+        when 'defnode'
+          ret << rest.slice!(/.+? /).strip
+          ret = ret.concat(parse_path(rest))
+        when 'match'
+          path, rest = parse_path(rest)
+          verb = rest.slice!(/.+? /).strip
+          ret = ret << path << verb
+          ret = if verb == 'size'
+                  ret << rest.slice!(/.+? /).strip << rest
+                else
+                  ret << rest
+                end
         end
         ret
       end
 
+      def parse_command(arg)
+        input = arg.dup
+        [input.slice!(/.+? /).strip, input]
+      end
+
       # This is kind of ugly
-      def parse_token(input)
+      def parse_path(input)
         state = 'run'
         stack = []
         ret = ''

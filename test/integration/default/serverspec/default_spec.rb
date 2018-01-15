@@ -8,4 +8,5 @@ describe file(t_file) do
   its(:content) { should match(/^TEST=b$/) }
   its(:content) { should match(/^TEST_NUM=1$/) }
   its(:content) { should match(/^TEST_LENS=sysconfig$/) }
+  its(:content) { should match(/^TEST_UNMATCHED=}\]$/) }
 end
