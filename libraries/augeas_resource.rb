@@ -2,11 +2,10 @@ require 'chef/resource'
 
 class Chef
   class Resource
-    # Resource decleration for augeas resource
     class Augeas < Chef::Resource
+      resource_name :augeas
       def initialize(name, run_context = nil)
         super
-        @resource_name = :augeas
         @action = :run
         @allowed_actions = [:run, :nothing]
         @changes = []

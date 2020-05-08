@@ -4,15 +4,16 @@ driver:
 
 provisioner:
   name: chef_zero
+  product_name: chef
+  product_version: 16.6.10
 
 platforms:
-  - name: centos-6.6
-  - name: centos-7.3
-  - name: ubuntu-14.04
-  - name: ubuntu-16.04
-  - name: freebsd-11.1
-    driver:
-      box: "bento/freebsd-11.1"
+  - name: centos-6
+  - name: centos-7
+  - name: ubuntu-18.04
+  - name: ubuntu-20.04
+  - name: freebsd-11
+  - name: freebsd-12
 
 
 suites:
@@ -22,4 +23,4 @@ suites:
       - recipe[augeas::test]
     attributes:
       augeas:
-        build-essential: true
+        build_essential: true
