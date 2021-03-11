@@ -4,6 +4,7 @@ class Chef
   class Resource
     class Augeas < Chef::Resource
       resource_name :augeas
+      provides :augeas
       def initialize(name, run_context = nil)
         super
         @action = :run

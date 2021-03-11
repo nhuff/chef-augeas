@@ -1,4 +1,4 @@
-# rubocop:disable Eval
+# rubocop:disable Security/Eval
 require 'chef/provider'
 require 'chef/util/diff'
 require 'chef/log'
